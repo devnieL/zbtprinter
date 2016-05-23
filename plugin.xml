@@ -8,7 +8,7 @@
     <license>Apache</license>
     <engines>
         <engine name="cordova" version=">=3.0.0" />
-    </engines>    
+    </engines>
 
     <js-module src="www/zbtprinter.js" name="ZebraBluetoothPrinter">
         <clobbers target="cordova.plugins.zbtprinter" />
@@ -19,6 +19,7 @@
 
       <config-file target="AndroidManifest.xml" parent="/*">
          <uses-permission android:name="android.permission.BLUETOOTH" />
+         <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
       </config-file>
 	  <source-file src="src/android/it/zenitlab/cordova/plugins/zbtprinter/ZebraBluetoothPrinter.java" target-dir="src/android/it/zenitlab/cordova/plugins/zbtprinter" />
 

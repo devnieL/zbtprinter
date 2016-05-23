@@ -15,34 +15,84 @@ import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 
+import com.zebra.android.discovery.*;
+
+import java.util.List;
+import java.util.ArrayList;
+
 public class ZebraBluetoothPrinter extends CordovaPlugin {
 
     private static final String LOG_TAG = "ZebraBluetoothPrinter";
-    String mac = "AC:3F:A4:1D:7A:5C";
 
-    public ZebraBluetoothPrinter() {
-    }
+    public List<DiscoveredPrinter> printers = new ArrayList<DiscoveredPrinter>();
+
+    public ZebraBluetoothPrinter() {}
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
         if (action.equals("print")) {
             try {
-                String msg = args.getString(0);
-                sendData(callbackContext, msg);
+                String mac = args.getString(0);
+                String msg = args.getString(1);
+                sendData(callbackContext, mac, msg);
             } catch (IOException e) {
                 Log.e(LOG_TAG, e.getMessage());
                 e.printStackTrace();
             }
             return true;
         }
+
+        if(action.equals("find")){
+          try{
+            findPrinter(callbackContext);
+          }catch(Exception e){
+            Log.e(LOG_TAG, e.getMessage());
+            e.printStackTrace();
+          }
+          return true;
+        }
+
         return false;
+    }
+
+    public void findPrinter(final CallbackContext callbackContext){
+
+      try{
+        BluetoothDiscovery.findPrinter(this.cordova.getActivity().getApplicationContext(), new DiscoveryHandler(){
+
+          public void foundPrinter(DiscoveredPrinter printer) {
+              printers.push(printer);
+          }
+
+          public void discoveryFinished() {
+
+              String macs[] = new String[printers.size()];
+
+              for(int i=0; i<printers.size; i++){
+                macs[i] = printers.get(i);
+              }
+
+              callbackContext.success(macs);
+              printers = new ArrayList<DiscoveredPrinter>();
+          }
+
+          public void discoveryError(String message) {
+              //Error during discovery
+              callbackContext.error(message);
+          }
+
+        });
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+
     }
 
     /*
      * This will send data to be printed by the bluetooth printer
      */
-    void sendData(final CallbackContext callbackContext, final String msg) throws IOException {
+    void sendData(final CallbackContext callbackContext, final String mac, final String msg) throws IOException {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -57,7 +107,7 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
                         thePrinterConn.open();
 
                         // Send the data to printer as a byte array.
-//                        thePrinterConn.write("^XA^FO0,20^FD^FS^XZ".getBytes());
+                        // thePrinterConn.write("^XA^FO0,20^FD^FS^XZ".getBytes());
                         thePrinterConn.write(msg.getBytes());
 
 
@@ -66,10 +116,10 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
 
                         // Close the insecure connection to release resources.
                         thePrinterConn.close();
-                        callbackContext.success("Stampa terminata");
+                        callbackContext.success("Done");
                     } else {
-						callbackContext.error("printer is not ready");
-					}
+          						callbackContext.error("Printer is not ready");
+          					}
                 } catch (Exception e) {
                     // Handle communications error here.
                     callbackContext.error(e.getMessage());
@@ -98,4 +148,3 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
         return isOK;
     }
 }
-
