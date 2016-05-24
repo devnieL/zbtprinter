@@ -24,6 +24,7 @@ import com.zebra.sdk.printer.PrinterStatus;
 import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
+import com.zebra.sdk.printer.ZebraPrinterLinkOs;
 import com.zebra.sdk.printer.discovery.BluetoothDiscoverer;
 import com.zebra.sdk.printer.discovery.DiscoveredPrinter;
 import com.zebra.sdk.printer.discovery.DiscoveredPrinterBluetooth;
@@ -166,7 +167,7 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
 
                         // Close the insecure connection to release resources.
                         connection.close();
-                        callbackContext.success("Impresión realizada correctamente.");
+                        callbackContext.success("Impresi�n realizada correctamente.");
                     } else {
 						callbackContext.error("Impresora no lista.");
 					}
@@ -183,7 +184,19 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
         connection.open();
         // Creates a ZebraPrinter object to use Zebra specific functionality like getCurrentStatus()
         ZebraPrinter printer = ZebraPrinterFactory.getInstance(connection);
-        PrinterStatus printerStatus = printer.getCurrentStatus();
+        PrinterStatus printerStatus = null;
+
+        try {
+            printerStatus = printer.getCurrentStatus();
+        }catch(ConnectionException exp){
+            ZebraPrinterLinkOs linkOsPrinter = ZebraPrinterFactory.createLinkOsPrinter(printer);
+            printerStatus = (linkOsPrinter != null) ? linkOsPrinter.getCurrentStatus() : printer.getCurrentStatus();
+        }
+
+        if(printerStatus == null){
+            throw new ConnectionException("No se puede obtener el estado de la impresora.");
+        }
+
         if (printerStatus.isReadyToPrint) {
             isOK = true;
         } else if (printerStatus.isPaused) {
