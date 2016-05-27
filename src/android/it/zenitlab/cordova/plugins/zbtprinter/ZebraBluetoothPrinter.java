@@ -37,7 +37,6 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
 
     private static final String LOG_TAG = "ZebraBluetoothPrinter";
     public List<DiscoveredPrinter> printers = new ArrayList<DiscoveredPrinter>();
-    String mac = "AC:3F:A4:4E:F9:F3";
 
     public ZebraBluetoothPrinter() {
     }
@@ -167,7 +166,7 @@ public class ZebraBluetoothPrinter extends CordovaPlugin {
 
                         // Close the insecure connection to release resources.
                         connection.close();
-                        callbackContext.success("Impresi�n realizada correctamente.");
+                        callbackContext.success("Impresión realizada correctamente.");
                     } else {
 						callbackContext.error("Impresora no lista.");
 					}
