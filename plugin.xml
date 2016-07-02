@@ -20,6 +20,8 @@
       <config-file target="AndroidManifest.xml" parent="/*">
          <uses-permission android:name="android.permission.BLUETOOTH" />
          <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+         <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+         <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
       </config-file>
 	  <source-file src="src/android/it/zenitlab/cordova/plugins/zbtprinter/ZebraBluetoothPrinter.java" target-dir="src/android/it/zenitlab/cordova/plugins/zbtprinter" />
 
